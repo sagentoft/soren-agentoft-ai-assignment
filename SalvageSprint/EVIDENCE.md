@@ -2,7 +2,7 @@
 
 Keep this short. Bullet points, a small table and one diagram or code trace are enough. This is your checkpoint record, not an extra report. Replace the prompts as you work.
 
-Name:
+Name: Søren Agentoft
 Exact Unity version:
 Checkpoint commit / repository:
 Current stage and anything unfinished:

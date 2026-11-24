@@ -64,7 +64,7 @@ namespace SalvageSprint
                 lastProgressPosition = transform.position; lastProgressTime = Time.time;
             }
             
-            if ((Status == TravelStatus.Moving || Status == TravelStatus.Pending && Time.time - lastProgressTime > 5)
+            if (Status == TravelStatus.Moving || Status == TravelStatus.Pending && Time.time - lastProgressTime > 5)
                 Status = TravelStatus.Failed;
             
             if (Status == TravelStatus.Failed && agent.isOnNavMesh)
