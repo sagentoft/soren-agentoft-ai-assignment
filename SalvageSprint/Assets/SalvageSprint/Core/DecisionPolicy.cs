@@ -18,10 +18,17 @@ namespace SalvageSprint.Core
             float distance = float.PositiveInfinity;
             foreach (Candidate candidate in observation.Candidates)
             {
-                // Deliberately naive: ignores Blocked.
-                if (candidate.Available && (candidate.Visible || candidate.Remembered) &&
-                    candidate.DistanceSquared < distance)
-                { nearest = candidate.Id; distance = candidate.DistanceSquared; }
+                if (!candidate.Available || (!candidate.Visible && !candidate.Remembered))
+                    continue;
+                
+                if (candidate.Id == observation.CurrentTargetId)
+                    return new AgentFacts(false, candidate.Id, true);
+                
+                if (candidate.DistanceSquared < distance)
+                {
+                    nearest = candidate.Id;
+                    distance = candidate.DistanceSquared;
+                }
             }
             return new AgentFacts(false, nearest, false);
         }

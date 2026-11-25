@@ -5,7 +5,7 @@ Keep this short. Bullet points, a small table and one diagram or code trace are 
 Name: Søren Agentoft
 Exact Unity version: 6000.3.26f1
 Checkpoint commit / repository:
-Current stage and anything unfinished: Stage 1 complete.
+Current stage and anything unfinished: Stage 3 implementation complete. Route failure recovery and final scenario verification remain.
 
 ## Initial prediction
 
@@ -50,6 +50,27 @@ After implementation (F4): The rival now selects the visible pickup rather than 
 
 The policy filters candidates based on availability andwhether they are visible or remembered before comparingtheir distances.
 
+## Stage 3 - Task commitment
+
+A closer candidate does not necessarily justify abandoning the current target. Retaining a usable target prevents unnecessary switching between tasks.
+
+The policy now checks whether an eligible candidate matches CurrentTargetId before comparing distances. If it does, the policy retains it and sets RetainedTarget to true.
+
+Target invalidation is already handled in RivalBrain.Update(), which clears rememberedId when the pickup becomes unavailable.
+
+The Stage 3 tests confirm that the rival retains its current usable target even when a closer candidate exists.
+
+F5 confirms that task commitment does not prevent the rival from abandoning an unavailable target. This behaviour was already supported by the supplied target invalidation logic.
+
+### Task transitions
+
+- Explore -> Collect: A usable pickup is discovered.
+- Collect -> Deliver: Scrap is successfully collected.
+- Collect -> Collect: The current target is retained or replaced if it becomes unusable and an alternative exists.
+- Collect -> Explore: The current target becomes unusable and no alternative exists.
+- Deliver -> Collect: Cargo is deposited and a usable pickup is available.
+- Deliver -> Explore: Cargo is deposited and no usable pickup is available.
+
 ## Scenario record
 
 | Scenario | Predicted result | Observed result and short evidence / remaining issue |
@@ -57,7 +78,7 @@ The policy filters candidates based on availability andwhether they are visible 
 | Normal loop and restart | Scrap can be collected and deposited, the match ends, and R restarts it. | Confirmed that collection, scoring, match completion and restart work. |
 | Carrying cargo | | |
 | Hidden / remembered pickup | Ignore unknown hidden pickups while allowing remembered pickups | F4 now selectes the visible pickup instead of the nearer hidden pickup. Stage 2 tests pass. |
-| Target taken | | |
+| Target taken | Release the unavailable target and select another usable target | The rival successfully switched targets in F5. Existing target invalidation remains functional after implementing task commitment. |
 | Unreachable target | | |
 | No usable pickup | | |
 
@@ -65,6 +86,8 @@ Supplied test result, with any added tests identified:
 
 Stage 1: 11 passed, 6 failed.
 Stage 2: 13 passed, 4 failed.
+Stage 3: 14 passed, 3 failed.
+
 Remaining failures are expected at this stage.
 
 Live walkthrough checked by / recording link if used:
