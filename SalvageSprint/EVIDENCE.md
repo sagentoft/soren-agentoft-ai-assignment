@@ -6,9 +6,6 @@ Name: Søren Agentoft
 Exact Unity version: 6000.3.26f1
 Checkpoint commit / repository:
 Current stage and anything unfinished: Stage 1 complete.
-Perception, task commitment and route failure recovery remain
-to be implemented. An unexplained navigation failure was
-observed and will be revisited during Stage 4 if it persists.
 
 ## Initial prediction
 
@@ -34,28 +31,54 @@ Use one actual situation. Include the observation data, derived facts, selected 
 - Feedback: Navigator.Poll() reports Failed. The exact cause of the navigation failure is unknown.
 - Subsequent decision: RivalBrain marks pickup 11 as blocked for six seconds. However, the current policy ignores the Blocked flag and continues selecting the same target.
 
+## Stage 2 - Perception and memory
+
+The original policy selects the nearest available candidatewithout considering visibility or memory.
+
+| Available | Visible | Remembered | Eligible |
+|---|---|---|---|
+| Yes | Yes | No | Yes |
+| Yes | No | No | No |
+| Yes | No | Yes | Yes |
+| No | No | Yes | No |
+
+A pickup must be available and either visible or rememberedto be eligible for selection.
+
+Before implementation (F4): The rival selected the nearer hidden pickup (ID 0) and remained stationary despite another visible pickup being available further away.
+
+After implementation (F4): The rival now selects the visible pickup rather than the nearer hidden pickup.
+
+The policy filters candidates based on availability andwhether they are visible or remembered before comparingtheir distances.
+
 ## Scenario record
 
 | Scenario | Predicted result | Observed result and short evidence / remaining issue |
 |---|---|---|
 | Normal loop and restart | Scrap can be collected and deposited, the match ends, and R restarts it. | Confirmed that collection, scoring, match completion and restart work. |
 | Carrying cargo | | |
-| Hidden / remembered pickup | | |
+| Hidden / remembered pickup | Ignore unknown hidden pickups while allowing remembered pickups | F4 now selectes the visible pickup instead of the nearer hidden pickup. Stage 2 tests pass. |
 | Target taken | | |
 | Unreachable target | | |
 | No usable pickup | | |
 
 Supplied test result, with any added tests identified:
 
-11 passed, 6 failed after Stage 1.
-All six failures are expected at this stage.
+Stage 1: 11 passed, 6 failed.
+Stage 2: 13 passed, 4 failed.
+Remaining failures are expected at this stage.
 
 Live walkthrough checked by / recording link if used:
 
 ## One correction and one independent check
 
 The original weakness and why it happened:
+
+The rival selected the nearest available candidate regardless of whether it knew about the pickup.
+
 What I changed and why it addresses the cause:
+
+Added a visibility and memory check to the candidate selection condition in DecisionPolicy.Infer(). Unknown hidden pickups are now excluded before distance is considered.
+
 My counterexample or experiment: prediction, observed result, and one limitation:
 
 - Prediction: Increasing the stopping distance beyond the collection radius could cause the rival to stop without collecting scrap.
