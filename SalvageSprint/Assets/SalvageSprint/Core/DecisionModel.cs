@@ -31,7 +31,7 @@ namespace SalvageSprint.Core
         {
             Carrying = carrying;
             CurrentTargetId = currentTargetId;
-            Candidates = candidates ?? Array.Empty<Candidate>();
+            Candidates = candidates ?? Array.Empty<Candidate>();    
         }
     }
 

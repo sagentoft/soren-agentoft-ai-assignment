@@ -18,7 +18,7 @@ namespace SalvageSprint.Core
             float distance = float.PositiveInfinity;
             foreach (Candidate candidate in observation.Candidates)
             {
-                if (!candidate.Available || (!candidate.Visible && !candidate.Remembered))
+                if (!candidate.Available || (!candidate.Visible && !candidate.Remembered) || candidate.Blocked)
                     continue;
                 
                 if (candidate.Id == observation.CurrentTargetId)
